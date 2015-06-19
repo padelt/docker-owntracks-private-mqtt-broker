@@ -1,0 +1,21 @@
+pid_file /var/run/mosquitto.pid
+
+persistence true
+persistence_location /volume/data/
+
+user mosquitto
+
+port 1883
+
+log_dest file /volume/log/mosquitto.log
+log_dest stdout
+
+cafile /volume/config/tls/ca.crt
+certfile /volume/config/tls/server.crt
+keyfile /volume/config/tls/server.key
+require_certificate false
+
+allow_anonymous false
+password_file /volume/config/clients/passwd
+
+include_dir /volume/config/conf.d
