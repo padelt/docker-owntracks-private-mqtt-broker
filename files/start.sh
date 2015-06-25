@@ -120,4 +120,22 @@ fi
 chown -R mosquitto:root $VOLUME/*
 chmod -R g+wr $VOLUME/*
 
+# Make Postgres run from the docker volume and take defaults/initial data from the "normal" locations
+# Postgres gets the locations from the command line parameters in /etc/supervisord.conf .
+mkdir -p $VOLUME/postgres
+if [ ! -d $VOLUME/postgres/config ]
+then
+   echo "Postgresql: Initializing configuration in volume."
+   cp -r /etc/postgresql/9.4/main $VOLUME/postgres/config
+   chown -R postgres:postgres $VOLUME/postgres/config
+   sed --in-place "s#/var/lib/postgresql/9.4/main#/volume/postgres/data#g" /volume/postgres/config/postgresql.conf
+   sed --in-place "s#/etc/postgresql/9.4/main#/volume/postgres/config#g" /volume/postgres/config/postgresql.conf
+fi
+if [ ! -d $VOLUME/postgres/data ]
+then
+   echo "Postgresql: Initializing data in volume."
+   cp -r /var/lib/postgresql/9.4/main $VOLUME/postgres/data
+   chown -R postgres:postgres $VOLUME/postgres/data
+fi
+
 supervisord -n -c /etc/supervisord.conf -e debug
