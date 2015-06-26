@@ -17,6 +17,7 @@
 VOLUME=/volume
 CLIENTS_DIR=$VOLUME/config/clients
 PASSWD_FILE=$CLIENTS_DIR/passwd
+PASSWD_SQL=$CLIENTS_DIR/passwd.pista.sql
 
 if [ ! -d $VOLUME ]
 then
@@ -64,12 +65,24 @@ then
    mkdir -p $CLIENTS_DIR
    touch $PASSWD_FILE
    cd $CLIENTS_DIR
+
+   truncate -s 0 $PASSWD_SQL
    
    for ((i=1;i<=10;i++)); do
       PASSWORD=`pwgen --no-capitalize --numerals --ambiguous 14 1`
       USERNAME=client$i
       echo "Username $USERNAME with Password $PASSWORD" >> $PASSWD_FILE.cleartext
       mosquitto_passwd -b $PASSWD_FILE $USERNAME $PASSWORD
+      # Remeber statements to feed Pista's database tables later
+      echo -n "DELETE FROM public.user WHERE username='" >> $PASSWD_SQL
+      echo -n $USERNAME >> $PASSWD_SQL
+      echo "';" >> $PASSWD_SQL
+      echo -n "INSERT INTO public.user (username, pwhash, superuser, tstamp) VALUES ('" >> $PASSWD_SQL
+      echo -n $USERNAME >> $PASSWD_SQL
+      echo -n "', '" >> $PASSWD_SQL
+      echo -n $PASSWORD >> $PASSWD_SQL
+      echo "', 1, now());"  >> $PASSWD_SQL
+
       cat > $USERNAME.otrc <<EOF
 {
   "ranging" : false,
@@ -114,6 +127,9 @@ EOF
    PASSWORD=`pwgen --no-capitalize --numerals --ambiguous 14 1`
    echo "Username o2s with Password $PASSWORD" >> $PASSWD_FILE.cleartext
    mosquitto_passwd -b $PASSWD_FILE o2s $PASSWORD
+
+   unset USERNAME
+   unset PASSWORD
 fi
 
 chown -R mosquitto:root $VOLUME/config $VOLUME/data $VOLUME/log

@@ -42,8 +42,9 @@ COPY files/o2s.conf /pista/o2s.conf
 
 COPY files/start.sh /start.sh
 COPY files/listen-mqtt.sh /listen-mqtt.sh
-RUN chmod +x /*.sh
 COPY files/supervisord.conf /etc/supervisord.conf
+COPY files/pista-inject-users.sh /tmp/pista-inject-users.sh
+RUN chmod +x /*.sh /tmp/*.sh
 
 VOLUME ["/volume"]
 
