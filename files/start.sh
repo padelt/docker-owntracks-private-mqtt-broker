@@ -44,28 +44,22 @@ then
    /tmp/generate-CA.sh
    for ((i=1;i<=10;i++)); do
       /tmp/generate-CA.sh client$i
-      PASSWORD=`pwgen --no-capitalize --numerals --ambiguous 14 1`
-      echo client$i:$PASSWORD >> PASSWD_FILE
    done
    ln -s `hostname -f`.crt server.crt
    ln -s `hostname -f`.key server.key
 fi
 
 # Generate some client authentication tokens and configuration files.
+if [ ! -d $CLIENTS_DIR ] && [ ! -f $VOLUME/host.config ]
+then
+  echo "************ PLEASE FIX host.config and run me again. ************"
+  exit 1
+fi
+
 if [ ! -d $CLIENTS_DIR ]
 then
    echo "Generating users and client configuration files (.otrc). Open one of those with the app."
-   if [ -f $VOLUME/host.config ]
-   then
-      . $VOLUME/host.config
-   fi
-
-   if [ "x$HOSTNAME" == "x" ] || [ "x$PORT" == "x" ] 
-   then
-      echo "************ PLEASE FIX host.config, then remove the config/clients/ directory and run again! ************"
-      HOSTNAME="THIS.WILL.NOT.WORK.PLEASE.FIX.HOST.CONFIG.FILE.example.org"
-      PORT="1883"
-   fi
+   . $VOLUME/host.config
 
    mkdir -p $CLIENTS_DIR
    touch $PASSWD_FILE
@@ -115,10 +109,15 @@ then
 EOF
       
    done
+
+   # o2s mosquitto user info for broker access
+   PASSWORD=`pwgen --no-capitalize --numerals --ambiguous 14 1`
+   echo "Username o2s with Password $PASSWORD" >> $PASSWD_FILE.cleartext
+   mosquitto_passwd -b $PASSWD_FILE o2s $PASSWORD
 fi
 
-chown -R mosquitto:root $VOLUME/*
-chmod -R g+wr $VOLUME/*
+chown -R mosquitto:root $VOLUME/config $VOLUME/data $VOLUME/log
+chmod -R g+wr $VOLUME/config $VOLUME/data $VOLUME/log
 
 # Make Postgres run from the docker volume and take defaults/initial data from the "normal" locations
 # Postgres gets the locations from the command line parameters in /etc/supervisord.conf .
@@ -135,7 +134,13 @@ if [ ! -d $VOLUME/postgres/data ]
 then
    echo "Postgresql: Initializing data in volume."
    cp -r /var/lib/postgresql/9.4/main $VOLUME/postgres/data
-   chown -R postgres:postgres $VOLUME/postgres/data
 fi
+chown -R postgres:postgres $VOLUME/postgres/data
+
+# Tell o2s the broker password
+USERNAME=o2s
+PASSWORD=`grep "$USERNAME " /volume/config/clients/passwd.cleartext  | sed "s/^.*Password \(.*\)$/\1/"`
+REPLACEMENT="password = \"$PASSWORD\" # MQTTPASSWORD Do not remove this comment!"
+sed -i "s/^.*MQTTPASSWORD.*$/${REPLACEMENT}/g" /pista/o2s.conf
 
 supervisord -n -c /etc/supervisord.conf -e debug
