@@ -48,6 +48,6 @@ RUN chmod +x /*.sh /tmp/*.sh
 
 VOLUME ["/volume"]
 
-EXPOSE 1883 9001 5432
+EXPOSE 8883 9001 5432
 
 CMD ["/bin/bash", "/start.sh"]

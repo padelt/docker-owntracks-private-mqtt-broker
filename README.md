@@ -13,8 +13,8 @@ If you are unfamiliar with Docker, try this on a host with Docker installed:
     $ docker build -t owntracks .
     $ mkdir -p /docker-volumes/owntracks/
     $ echo "HOSTNAME=`hostname -f`" >> /docker-volumes/owntracks/host.config
-    $ echo "PORT=21883" >> /docker-volumes/owntracks/host.config
-    $ docker run -it-v /docker-volumes/owntracks:/volume -p 21883:1883 --name owntracks owntracks bash
+    $ echo "PORT=28883" >> /docker-volumes/owntracks/host.config
+    $ docker run -it-v /docker-volumes/owntracks:/volume -p 28883:8883 --name owntracks owntracks bash
     root@4dfeb19a7da2:/#
 
 Now inside the container:
