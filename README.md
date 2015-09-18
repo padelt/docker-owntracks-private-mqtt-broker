@@ -29,6 +29,8 @@ The smartphone will not connect to the MQTT broker (mosquitto) yet. It needs to 
 
     /docker-volumes/owntracks/config/tls/ca.crt
 
+An alternative to installing the CA certificate is to enable a Custom Security Policy in the App. Setting the Mode to "None" and allowing untrusted certificates will work. THe price is that your connection can now be trivially intercepted by a third party who can read (and modify) all the data in clear (man-in-the-middle attack).
+
 For more details, please read this:
 http://philipp.adelt.net/5/posts/2015/06/owntracks-getting-started-private-mode/
 

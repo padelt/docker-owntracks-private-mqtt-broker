@@ -36,6 +36,18 @@ then
    cp /tmp/mosquitto.conf.default $VOLUME/config/mosquitto.conf
 fi
 
+if [ ! -f $VOLUME/host.config ]
+then
+  echo "************ PLEASE FIX host.config and run me again. ************"
+  exit 1
+fi
+. $VOLUME/host.config
+if [ -z "$HOSTNAME" ]
+then
+  echo "************ host.config needs to contain the HOSTNAME variable! ************"
+  exit 1
+fi 
+
 # Create a minimal CA-infrastructure with a server and 10 client certs if not there yet
 if [ ! -d $VOLUME/config/tls ]
 then
@@ -46,21 +58,16 @@ then
    for ((i=1;i<=10;i++)); do
       /tmp/generate-CA.sh client$i
    done
-   ln -s `hostname -f`.crt server.crt
-   ln -s `hostname -f`.key server.key
+   HOSTLIST="$HOSTNAME" /tmp/generate-CA.sh "$HOSTNAME"
+   ln -s "$HOSTNAME.crt" server.crt
+   ln -s "$HOSTNAME.key" server.key
 fi
 
 # Generate some client authentication tokens and configuration files.
-if [ ! -d $CLIENTS_DIR ] && [ ! -f $VOLUME/host.config ]
-then
-  echo "************ PLEASE FIX host.config and run me again. ************"
-  exit 1
-fi
 
 if [ ! -d $CLIENTS_DIR ]
 then
    echo "Generating users and client configuration files (.otrc). Open one of those with the app."
-   . $VOLUME/host.config
 
    mkdir -p $CLIENTS_DIR
    touch $PASSWD_FILE
