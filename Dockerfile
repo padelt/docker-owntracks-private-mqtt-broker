@@ -46,6 +46,11 @@ COPY files/supervisord.conf /etc/supervisord.conf
 COPY files/pista-inject-users.sh /tmp/pista-inject-users.sh
 RUN chmod +x /*.sh /tmp/*.sh
 
+# Install mqttwarn with enough to fill a Google Docs Table
+RUN git clone https://github.com/jpmens/mqttwarn.git /opt/mqttwarn
+RUN pip install gspread && pip install google-api-python-client
+COPY files/mqttwarn.ini.default /tmp/mqttwarn.ini.default
+
 VOLUME ["/volume"]
 
 EXPOSE 8883 9001 5432

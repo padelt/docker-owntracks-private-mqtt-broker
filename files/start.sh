@@ -135,7 +135,22 @@ EOF
    echo "Username o2s with Password $PASSWORD" >> $PASSWD_FILE.cleartext
    mosquitto_passwd -b $PASSWD_FILE o2s $PASSWORD
 
+   # mqttwarn mosquitto user info
+   PASSWORD=`pwgen --no-capitalize --numerals --ambiguous 14 1`
+   echo "Username mqttwarn with Password $PASSWORD" >> $PASSWD_FILE.cleartext
+   mosquitto_passwd -b $PASSWD_FILE mqttwarn $PASSWORD
+
    unset USERNAME
+   unset PASSWORD
+fi
+
+# Provide an initial mqttwarn config if nothing is there yet.
+if [ ! -f $VOLUME/config/mqttwarn.ini ]
+then
+   echo "Setting default configuration for mqttwarn. Feel free to improve!"
+   cp /tmp/mqttwarn.ini.default $VOLUME/config/mqttwarn.ini
+   PASSWORD=`grep "mqttwarn " /volume/config/clients/passwd.cleartext  | sed "s/^.*Password \(.*\)$/\1/"`
+   sed -i "s/MQTTPASSWORD/$PASSWORD/" $VOLUME/config/mqttwarn.ini
    unset PASSWORD
 fi
 

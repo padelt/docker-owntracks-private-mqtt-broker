@@ -5,7 +5,7 @@ persistence_location /volume/data/
 
 user mosquitto
 
-port 1883
+port 8883
 
 log_dest file /volume/log/mosquitto.log
 log_dest stdout
