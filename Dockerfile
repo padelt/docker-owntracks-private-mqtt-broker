@@ -1,15 +1,16 @@
-FROM debian:jessie
+FROM debian:stretch
 
 MAINTAINER Philipp Adelt <autosort-github@philipp.adelt.net>
 
+RUN apt-get update && apt-get upgrade -y && apt-get install -y gnupg apt-transport-https
+
 # Everthing for the MQTT Broker "mosquitto"
-ADD files/mosquitto-jessie.list /etc/apt/sources.list.d/mosquitto-jessie.list
+ADD files/mosquitto-stretch.list /etc/apt/sources.list.d/mosquitto-stretch.list
 ADD files/mosquitto-repo.gpg.key /tmp/mosquitto-repo.gpg.key
 RUN apt-key add /tmp/mosquitto-repo.gpg.key
 
-RUN apt-get update
-RUN apt-get upgrade -y
-RUN apt-get install -y mosquitto mosquitto-clients vim nano supervisor openssl pwgen git python-pip postgresql python-dev libmysqlclient-dev python-psycopg2
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install -y mosquitto mosquitto-clients vim nano supervisor openssl pwgen git python-pip postgresql python-dev default-libmysqlclient-dev python-psycopg2 net-tools
 
 RUN adduser --system --disabled-password --disabled-login mosquitto
 
@@ -21,10 +22,9 @@ COPY files/mosquitto.conf.default /tmp/mosquitto.conf.default
 COPY files/generate-CA.sh /tmp/generate-CA.sh
 RUN chmod +x /tmp/generate-CA.sh
 
-
 # Postgresql for persistent storage via o2s
 # Allow all users from localhost
-RUN echo "host all  all    127.0.0.0/8  md5" >> /etc/postgresql/9.4/main/pg_hba.conf
+RUN echo "host all  all    127.0.0.0/8  md5" >> /etc/postgresql/9.6/main/pg_hba.conf
 
 USER postgres
 RUN /etc/init.d/postgresql start &&\

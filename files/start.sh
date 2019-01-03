@@ -14,6 +14,8 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+set -e
+
 VOLUME=/volume
 CLIENTS_DIR=$VOLUME/config/clients
 PASSWD_FILE=$CLIENTS_DIR/passwd
@@ -163,15 +165,15 @@ mkdir -p $VOLUME/postgres
 if [ ! -d $VOLUME/postgres/config ]
 then
    echo "Postgresql: Initializing configuration in volume."
-   cp -r /etc/postgresql/9.4/main $VOLUME/postgres/config
+   cp -r /etc/postgresql/9.6/main $VOLUME/postgres/config
    chown -R postgres:postgres $VOLUME/postgres/config
-   sed --in-place "s#/var/lib/postgresql/9.4/main#/volume/postgres/data#g" /volume/postgres/config/postgresql.conf
-   sed --in-place "s#/etc/postgresql/9.4/main#/volume/postgres/config#g" /volume/postgres/config/postgresql.conf
+   sed --in-place "s#/var/lib/postgresql/9.6/main#/volume/postgres/data#g" /volume/postgres/config/postgresql.conf
+   sed --in-place "s#/etc/postgresql/9.6/main#/volume/postgres/config#g" /volume/postgres/config/postgresql.conf
 fi
 if [ ! -d $VOLUME/postgres/data ]
 then
    echo "Postgresql: Initializing data in volume."
-   cp -r /var/lib/postgresql/9.4/main $VOLUME/postgres/data
+   cp -r /var/lib/postgresql/9.6/main $VOLUME/postgres/data
 fi
 chown -R postgres:postgres $VOLUME/postgres/data
 

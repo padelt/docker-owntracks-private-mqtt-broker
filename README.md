@@ -1,5 +1,7 @@
 Docker container with Mosquitto, o2s and Postgresql preconfigured with an automatically generated set of configuration files for the OwnTrack smartphone apps.
 
+NOTE: This repository contains an old, largely UNMAINTAINED solution that may or may not work. It is not actively used or tested.
+
 # Requirements
 
 Development was done using Docker 1.7.0, yet older version were used before that.
@@ -29,7 +31,7 @@ The smartphone will not connect to the MQTT broker (mosquitto) yet. It needs to 
 
     /docker-volumes/owntracks/config/tls/ca.crt
 
-An alternative to installing the CA certificate is to enable a Custom Security Policy in the App. Setting the Mode to "None" and allowing untrusted certificates will work. THe price is that your connection can now be trivially intercepted by a third party who can read (and modify) all the data in clear (man-in-the-middle attack).
+An alternative to installing the CA certificate is to enable a Custom Security Policy in the App. Setting the Mode to "None" and allowing untrusted certificates will work. The price is that your connection can now be trivially intercepted by a third party who can read (and modify) all the data in clear (man-in-the-middle attack).
 
 For more details, please read this:
 http://philipp.adelt.net/5/posts/2015/06/owntracks-getting-started-private-mode/
